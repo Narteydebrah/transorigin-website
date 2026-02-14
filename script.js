@@ -13,12 +13,90 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Form submission handler
-document.querySelector('.contact-form form').addEventListener('submit', function(e) {
+// Web3Forms Contact Form Integration
+document.querySelector('.contact-form form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    alert('Thank you for your message. We will respond within 24 hours.');
-    this.reset();
+    
+    const form = this;
+    const submitBtn = form.querySelector('.submit-btn');
+    const formData = new FormData(form);
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    
+    // Prepare data for Web3Forms
+    const data = {
+        access_key: 'b42c7bee-c57c-4a1a-92f1-49019cfed6b4', // Get your key from https://web3forms.com
+        name: formData.get('name'),
+        organization: formData.get('organization'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message'),
+        from_name: 'TransOrigin Advisory Contact Form'
+    };
+    
+    try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Success!
+            showSuccess();
+            form.reset();
+        } else {
+            throw new Error('Submission failed');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showError();
+    } finally {
+        // Reset button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+    }
 });
+
+// Success message
+function showSuccess() {
+    const message = document.createElement('div');
+    message.className = 'form-message success';
+    message.innerHTML = `
+        <strong>✓ Message Sent Successfully</strong><br>
+        Thank you for reaching out. We will respond within 24 hours.
+    `;
+    
+    const form = document.querySelector('.contact-form form');
+    form.insertAdjacentElement('beforebegin', message);
+    
+    setTimeout(() => {
+        message.remove();
+    }, 5000);
+}
+
+// Error message
+function showError() {
+    const message = document.createElement('div');
+    message.className = 'form-message error';
+    message.innerHTML = `
+        <strong>✗ Submission Failed</strong><br>
+        Please try again or email us directly at transadvisoryorigin@gmail.com
+    `;
+    
+    const form = document.querySelector('.contact-form form');
+    form.insertAdjacentElement('beforebegin', message);
+    
+    setTimeout(() => {
+        message.remove();
+    }, 5000);
+}
 
 // Add scroll animation to nav
 let lastScroll = 0;
