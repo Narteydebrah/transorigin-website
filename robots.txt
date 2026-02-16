@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://transorigin.org/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Crawl-delay: 10
